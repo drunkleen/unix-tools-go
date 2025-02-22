@@ -45,22 +45,40 @@ git clone https://github.com/drunkleen/unix-tools-go.git
 cd unix-tools-go
 ```
 
-Build echo:
+**use `Makefile` to build:**
 
 ```bash
-go build -o unix-tools ./cmd/echo/main.go
+make all
 ```
 
-Build cat:
+**Build echo:**
 
 ```bash
-go build -o unix-tools ./cmd/cat/main.go
+go build -o bin/echo ./cmd/echo
+```
+or
+```bash
+make echo
 ```
 
-Build ls:
+**Build cat:**
 
 ```bash
-go build -o unix-tools ./cmd/ls/main.go
+go build -o bin/cat ./cmd/cat
+```
+or
+```bash
+make cat
+```
+
+**Build ls:**
+
+```bash
+go build -o bin/ls ./cmd/ls
+```
+or
+```bash
+make ls
 ```
 
 ---
@@ -74,7 +92,7 @@ After building the project, you can use each tool as follows:
 Prints the provided arguments to standard output.
 
 ```bash
-./echo Hello, world!
+./bin/echo Hello, world!
 ```
 
 ### cat
@@ -83,10 +101,10 @@ Reads file contents and prints them. Supports an optional `-n` flag for line num
 
 ```bash
 # Read from a file with line numbers
-./cat -n file.txt
+./bin/cat -n file.txt
 
 # Read from standard input
-./cat file.txt | ./cat
+./bin/cat file.txt | ./cat
 ```
 
 ### ls
@@ -95,10 +113,10 @@ Lists directory contents. Use `-l` for a detailed view.
 
 ```bash
 # Default multi-column listing of the current directory:
-./ls
+./bin/ls
 
 # Detailed listing (similar to ls -l):
-./ls -l /path/to/directory
+./bin/ls -l /path/to/directory
 ```
 
 ---
@@ -107,7 +125,7 @@ Lists directory contents. Use `-l` for a detailed view.
 
 I created a detailed video on my YouTube channel that walks through the development of these tools in Persian Language.
 
-[![Watch the Video](https://img.youtube.com/vi/your-video-id/maxresdefault.jpg)](https://www.youtube.com/watch?v=xxxxxxxxxxxxxxx)
+[![Watch the Video](https://i9.ytimg.com/vi/7hc2LzaOt6o/maxresdefault.jpg?v=67b99eae&sqp=CMzC5r0G&rs=AOn4CLC9Orc8j7x0v-9xA6WGDbar6mdbng)](https://youtu.be/7hc2LzaOt6o)
 
 ---
 

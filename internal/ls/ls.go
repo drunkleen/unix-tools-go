@@ -2,15 +2,17 @@
 package ls
 
 import (
-	"flag"          // For parsing command-line flags.
-	"fmt"           // For formatted I/O.
-	"os"            // For file system and OS interaction.
-	"os/user"       // To lookup user and group information.
-	"path/filepath" // For manipulating file paths.
-	"sort"          // For sorting directory entries.
-	"strings"       // For string manipulation.
-	"syscall"       // To access low-level system calls and file metadata.
-	"time"          // For handling time and date formatting.
+	"flag"    // For parsing command-line flags.
+	"fmt"     // For formatted I/O.
+	"os"      // For file system and OS interaction.
+	"os/user" // To lookup user and group information.
+	"strings"
+
+	// For manipulating file paths.
+	"sort" // For sorting directory entries.
+	// For string manipulation.
+	"syscall" // To access low-level system calls and file metadata.
+	"time"    // For handling time and date formatting.
 
 	"golang.org/x/term" // To retrieve terminal size.
 )
@@ -40,7 +42,7 @@ func Run(args []string) {
 
 	// Sort directory entries alphabetically by their name.
 	sort.Slice(entries, func(i, j int) bool {
-		return entries[i].Name() < entries[j].Name()
+		return strings.ToLower(entries[i].Name()) < strings.ToLower(entries[j].Name())
 	})
 
 	// Depending on the flag, choose the output format.
@@ -138,13 +140,13 @@ func printMultiColumn(entries []os.DirEntry) {
 	if err != nil || width < 20 {
 		width = 80 // Default to 80 columns if the terminal size is not available.
 	}
-
 	var names []string
 	maxLen := 0 // Track the longest filename length.
 	// Collect file names along with their icons.
 	for _, entry := range entries {
 		name := getFileNameWithIcon(entry)
 		names = append(names, name)
+
 		if len(name) > maxLen {
 			maxLen = len(name) // Update max length for padding.
 		}
@@ -163,97 +165,5 @@ func printMultiColumn(entries []os.DirEntry) {
 		if (i+1)%cols == 0 || i == len(names)-1 {
 			fmt.Println()
 		}
-	}
-}
-
-// getFileNameWithIcon returns a filename prefixed with an icon based on its type.
-func getFileNameWithIcon(entry os.DirEntry) string {
-	if entry.IsDir() {
-		// Use a folder icon for directories.
-		return " " + entry.Name()
-	}
-
-	// Convert file extension to lowercase for case-insensitive matching.
-	ext := strings.ToLower(filepath.Ext(entry.Name()))
-
-	// Return file name with an appropriate icon based on its extension or specific file names.
-	switch {
-
-	case ext == ".go", entry.Name() == "go.mod", entry.Name() == "go.sum":
-		return "󰟓 " + entry.Name() // Icon for Go files.
-
-	case entry.Name() == "Dockerfile", entry.Name() == "docker-compose.yml", entry.Name() == ".dockerignore":
-		return " " + entry.Name() // Icon for Dockerfile.
-
-	case ext == ".rs", entry.Name() == "cargo.toml":
-		return " " + entry.Name() // Icon for Rust files.
-
-	case ext == ".md":
-		return " " + entry.Name() // Icon for Markdown files.
-
-	case ext == ".json":
-		return " " + entry.Name() // Icon for JSON files.
-
-	case ext == ".toml":
-		return " " + entry.Name() // Icon for TOML files.
-
-	case ext == ".css":
-		return " " + entry.Name() // Icon for CSS files.
-
-	case ext == ".html":
-		return " " + entry.Name() // Icon for HTML files.
-
-	case ext == ".js":
-		return " " + entry.Name() // Icon for JavaScript files.
-
-	case ext == ".pdf":
-		return " " + entry.Name() // Icon for PDF files.
-
-	case ext == ".txt":
-		return "󰦨 " + entry.Name() // Icon for text files.
-
-	case ext == ".git", ext == ".github", entry.Name() == ".gitignore":
-		return " " + entry.Name() // Icon for Git-related files.
-
-	// Additional universal file types
-	case ext == ".png", ext == ".jpg", ext == ".jpeg", ext == ".gif", ext == ".bmp", ext == ".svg":
-		return " " + entry.Name() // Icon for image files.
-
-	case ext == ".mp4", ext == ".mkv", ext == ".avi", ext == ".mov", ext == ".wmv":
-		return "󰃽 " + entry.Name() // Icon for video files.
-
-	case ext == ".mp3", ext == ".wav", ext == ".flac", ext == ".ogg", ext == ".aac":
-		return " " + entry.Name() // Icon for audio files.
-
-	case ext == ".zip", ext == ".tar", ext == ".gz", ext == ".rar", ext == ".7z":
-		return " " + entry.Name() // Icon for archive files.
-
-	case ext == ".doc", ext == ".docx":
-		return " " + entry.Name() // Icon for document files.
-
-	case ext == ".xls", ext == ".xlsx":
-		return " " + entry.Name() // Icon for spreadsheet files.
-
-	case ext == ".ppt", ext == ".pptx":
-		return "󱎐 " + entry.Name() // Icon for presentation files.
-
-	case ext == ".sh":
-		return " " + entry.Name() // Icon for shell scripts.
-
-	case ext == ".c", ext == ".cpp", ext == ".h", ext == ".hpp":
-		return " " + entry.Name() // Icon for C/C++ source files.
-
-	case ext == ".py":
-		return " " + entry.Name() // Icon for Python files.
-
-	case ext == ".java":
-		return " " + entry.Name() // Icon for Java files.
-
-	case entry.Name() == "Makefile":
-		return " " + entry.Name() // Icon for Makefile.
-
-	default:
-		return " " + entry.Name() // Default file icon.
-
 	}
 }

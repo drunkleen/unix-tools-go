@@ -39,14 +39,14 @@ func Run(args []string) {
 	files := fs.Args()
 	// If no files are provided, read from standard input.
 	for len(files) == 0 {
-		printFromReader(os.Stdin, *lineNumbers)
+		printFromReader(os.Stdin, lineNumbers)
 		return
 	}
 
 	// Iterate over each provided file name.
 	for _, file := range files {
 		// Process each file and print its contents.
-		err := printFile(file, *lineNumbers)
+		err := printFile(file, lineNumbers)
 		if err != nil {
 			// If there's an error opening or reading a file, print it to stderr.
 			fmt.Fprintf(os.Stderr, "cat: %v\n", err)
@@ -56,7 +56,7 @@ func Run(args []string) {
 
 // printFile opens the specified file, prints its contents to stdout,
 // and optionally adds line numbers. It returns an error if file access fails.
-func printFile(fileName string, lineNumbers bool) error {
+func printFile(fileName string, lineNumbers *bool) error {
 	// Open the file in read-only mode.
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -72,27 +72,46 @@ func printFile(fileName string, lineNumbers bool) error {
 
 // printFromReader reads from the provided file and prints its content to stdout.
 // It prints a header with the file's name and optionally prefixes each line with its line number.
-func printFromReader(reader *os.File, lineNumbers bool) {
+func printFromReader(reader *os.File, lineNumbers *bool) {
 	// Create a new scanner to read the input line by line.
 	scanner := bufio.NewScanner(reader)
-	// Print a header using repeated characters to format the output.
-	// The header includes a border and centers the file name.
-	fmt.Print(
-		strings.Repeat("─", width), "\n",
-		strings.Repeat(" ", width/2-len(reader.Name())/2),
-		reader.Name(),
-		strings.Repeat(" ", width/2-len(reader.Name())/2-1),
-		strings.Repeat("─", width), "\n",
-	)
+	if *lineNumbers {
+		// The header includes a border and centers the file name.
+		fmt.Print(
+			strings.Repeat("─", 7), "┬", strings.Repeat("─", width-8), "\n",
+			strings.Repeat(" ", 7), "│ File: ",
+			reader.Name(), "\n",
+			strings.Repeat("─", 7), "┼", strings.Repeat("─", width-8), "\n",
+		)
+	}
 
 	lineCounter := 1 // Initialize a counter for line numbering.
-	// Iterate over each line of the input.
-	for scanner.Scan() {
-		if lineNumbers {
+	if *lineNumbers {
+		// Iterate over each line of the input.
+		for scanner.Scan() {
 			// If line numbering is enabled, format the output with a fixed width for numbers.
-			fmt.Printf("%6d │ %s\n", lineCounter, scanner.Text())
+			// fmt.Printf("%6d │ %s\n", lineCounter, scanner.Text())
+			fmt.Printf("%6d │ ", lineCounter)
+
+			for i, t := range scanner.Text() {
+				if i%(width-9) == 0 && i != 0 {
+					println()
+					fmt.Printf("       │ ")
+				}
+				print(string(t))
+			}
+
+			fmt.Println()
+
 			lineCounter++
-		} else {
+		}
+		// The header includes a border and centers the file name.
+		fmt.Print(
+			strings.Repeat("─", 7), "┴", strings.Repeat("─", width-8), "\n",
+		)
+	} else {
+		// Iterate over each line of the input.
+		for scanner.Scan() {
 			// Otherwise, simply print the line.
 			fmt.Println(scanner.Text())
 		}
